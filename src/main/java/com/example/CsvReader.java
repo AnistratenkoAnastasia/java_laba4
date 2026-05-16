@@ -4,22 +4,28 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
+import com.opencsv.CSVReaderBuilder;
 import com.opencsv.exceptions.CsvException;
 
 public class CsvReader {
-    private static final char SEPARATOR = ';'; // разобраться, почему не работает!!!
+    private static final char SEPARATOR = ';';
+    private Map<String, Department> departmentMap = new HashMap<>();
 
     public List<Person> readData(String csvFilePath) {
         List<Person> persons = new ArrayList<>();
         
         try (InputStream in = getClass().getClassLoader().getResourceAsStream(csvFilePath);
-            CSVReader reader = in == null ? null : new CSVReader(new InputStreamReader(in, "UTF-8"), SEPARATOR)) {
+            CSVReader reader = in == null ? null : 
+            new CSVReaderBuilder(new InputStreamReader(in, "UTF-8"))
+            .withCSVParser(new CSVParserBuilder().withSeparator(SEPARATOR).build()).build();) {
             
             if (reader == null) {
                 throw new FileNotFoundException("Файл не найден: " + csvFilePath);
@@ -55,8 +61,7 @@ public class CsvReader {
             String departmentName = line[4].trim();
             int salary = Integer.parseInt(line[5].trim());
             
-            // добавить функцию, которая будет проверять и возвращать подразделение новое или уже созданное
-            Department department;
+            Department department = checkDepartment(departmentName);
 
             return new Person(id, name, gender, department, salary, birthDate);
             
@@ -64,5 +69,9 @@ public class CsvReader {
             System.err.println("Ошибка парсинга строки: " + Arrays.toString(line));
             return null;
         }
+    }
+
+    private Department checkDepartment(String departmentName) {
+        return departmentMap.computeIfAbsent(departmentName, Department::new);
     }
 }
