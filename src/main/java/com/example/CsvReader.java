@@ -15,17 +15,28 @@ import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 import com.opencsv.exceptions.CsvException;
 
+/**
+ * Утилита для чтения и парсинга CSV-файлов с данными о сотрудниках.
+ * Кэширует объекты {@link Department} для предотвращения создания дубликатов.
+ */
 public class CsvReader {
     private static final char SEPARATOR = ';';
     private Map<String, Department> departmentMap = new HashMap<>();
 
+    /**
+     * Читает CSV-файл из ресурсов проекта и преобразует его в список сотрудников.
+     *
+     * @param csvFilePath путь к файлу относительно classpath (например, "data.csv")
+     * @return список объектов {@link Person}
+     * @throws FileNotFoundException если файл не найден в ресурсах
+     */
     public List<Person> readData(String csvFilePath) {
         List<Person> persons = new ArrayList<>();
         
         try (InputStream in = getClass().getClassLoader().getResourceAsStream(csvFilePath);
             CSVReader reader = in == null ? null : 
             new CSVReaderBuilder(new InputStreamReader(in, "UTF-8"))
-            .withCSVParser(new CSVParserBuilder().withSeparator(SEPARATOR).build()).build();) {
+            .withCSVParser(new CSVParserBuilder().withSeparator(SEPARATOR).build()).build()) {
             
             if (reader == null) {
                 throw new FileNotFoundException("Файл не найден: " + csvFilePath);
@@ -47,6 +58,12 @@ public class CsvReader {
         return persons;
     }
 
+    /**
+     * Парсит одну строку CSV в объект сотрудника.
+     *
+     * @param line массив полей строки
+     * @return объект {@link Person} или {@code null}, если строка некорректна
+     */
     private Person parsePerson(String[] line) {
         if (line == null || line.length < 6) {
             System.err.println("Некорректная строка: " + Arrays.toString(line));
@@ -71,6 +88,12 @@ public class CsvReader {
         }
     }
 
+    /**
+     * Возвращает существующий департамент из кэша или создаёт новый.
+     *
+     * @param departmentName название департамента
+     * @return объект {@link Department}
+     */
     private Department checkDepartment(String departmentName) {
         return departmentMap.computeIfAbsent(departmentName, Department::new);
     }
