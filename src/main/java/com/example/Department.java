@@ -15,4 +15,9 @@ public class Department {
     public String getName() {return name;}
 
     public void setName(String newName) {this.name = newName;}
+
+    @Override
+    public String toString() {
+        return name;
+    }
 }
