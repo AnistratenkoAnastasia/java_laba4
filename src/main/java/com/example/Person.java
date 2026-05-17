@@ -10,7 +10,7 @@ public class Person {
 
     public Person(int ID, String name, String gender, Department department,
         int salary, String birthDate) {
-        this.id = 0;
+        this.id = ID;
         this.name = name;
         this.gender = gender;
         this.department = department;
@@ -30,4 +30,9 @@ public class Person {
     public void setDepartment(Department department) {this.department = department;}
     public void setName(int salary) {this.salary = salary;}
     public void setBirthDate(String birthDate) {this.birthDate = birthDate;}
+
+    @Override
+    public String toString() {
+        return "Person{" + id + " " + name + " " + gender + " " + department + " " + salary + " " + birthDate + "}";
+    }
 }
